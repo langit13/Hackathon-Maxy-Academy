@@ -52,4 +52,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/data-laporan', [UserController::class, 'dataLaporan'])->name('dataLaporan');
     Route::get('/kontak', [UserController::class, 'kontak'])->name('kontak');
 });
-// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+    Route::get('/admin/user', [AdminController::class, 'index'])->name('admin.user');
+    Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    

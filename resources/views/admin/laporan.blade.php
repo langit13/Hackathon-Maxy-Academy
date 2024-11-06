@@ -17,8 +17,10 @@
                 <a href="index.html"><i class="icon">🏠</i> Dashboard</a>
                 <a href="reports.html" class="active"><i class="icon">📄</i> Reports</a>
                 <a href="user.html"><i class="icon">👤</i> Users</a>
-                <a href="setting.html"><i class="icon">⚙️</i> Settings</a>
-            </nav>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf <!-- CSRF Token -->
+                    <button type="submit" class="btn logout-btn " style="text-align: left; margin-left: 0;"><i class="icon">&#128682;</i>Log Out</button>
+                </form>
         </aside>
 
         <!-- Main Content -->
@@ -168,6 +170,65 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        /* Logout Button Styling */
+.btn.logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background-color: #007bff; /* Warna tombol yang aktif */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Memperlebar tombol hingga memenuhi lebar kontainer */
+}
+
+.btn.logout-btn:hover {
+    background-color: #0056b3; /* Warna hover untuk tombol aktif */
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn.logout-btn:active {
+    background-color: #003f7d; /* Warna saat tombol ditekan */
+    transform: scale(1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Styling untuk tombol yang dinonaktifkan */
+.btn.logout-btn[disabled] {
+    background-color: #6c757d; /* Warna tombol saat dinonaktifkan (abu-abu) */
+    color: #adb5bd; /* Warna teks saat tombol dinonaktifkan */
+    cursor: not-allowed; /* Ubah kursor menjadi tanda larangan */
+    box-shadow: none; /* Hilangkan bayangan tombol */
+}
+
+.btn.logout-btn .icon {
+    margin-right: 8px;
+    font-size: 20px;
+}
+
+/* Tooltip Styling */
+.btn.logout-btn:hover::after {
+    content: 'Click to log out';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
     </style>
 </body>
 

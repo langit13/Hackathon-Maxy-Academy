@@ -17,9 +17,11 @@
             <nav>
                 <a href="index.html" class="active"><i class="icon">&#128200;</i> Dashboard</a>
                 <a href="/laporan.html"><i class="icon">&#128221;</i> Reports</a>
-                <a href="user.html"><i class="icon">&#128100;</i> Users</a>
-                <a href="setting.html"><i class="icon">&#9881;</i> Settings</a>
-            </nav>
+                <a href="{{ route('admin.user') }}"><i class="icon">&#128100;</i> Users</a>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf <!-- CSRF Token -->
+                    <button type="submit" class="btn logout-btn " style="text-align: left; margin-left: 0;"><i class="icon">&#128682;</i>Log Out</button>
+                </form>            </nav>
         </aside>
 
         <!-- Main Content -->
@@ -30,23 +32,9 @@
                     <span class="date">Wednesday, November 6, 2024</span>
                 </div>
                 <div class="profile-section">
-                    <span class="notifications">&#128276;</span>
+                    <i class="notifications">🔔</i>
                     <div class="profile">
-                        <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ asset('images/user-profile.png') }}" alt="Profile" class="rounded-circle me-2" width="40" height="40">
-                            <span>{{ Auth::user()->name ?? 'User' }}</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                            <li><a class="dropdown-item" href="{{ route('profile.show') }}">Edit Profile</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item">Logout</button>
-                                </form>
-                            </li>
-                        </ul>
+                        <img src="profile.jpg" alt="Profile Picture">
                     </div>
                 </div>
             </header>

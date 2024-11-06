@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -11,23 +12,44 @@ class UserController extends Controller
         return view('user.index');
     }
 
-    public function tentangKami()
-    {
-        return view('user.tentangKami');
+        public function store(Request $request)
+        {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'role' => 'required|string',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'role' => $request->role,
+            'status' => $request->status ?? 'Active',
+        ]);
+
+        return redirect()->route('admin.user')->with('success', 'User berhasil ditambahkan');
     }
 
-    public function laporan()
+    public function update(Request $request, $id)
     {
-        return view('user.laporan');
+        $user = User::findOrFail($id);
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->role = $request->input('role');
+        $user->save();
+
+        return redirect()->route('admin.user')->with('success', 'User updated successfully');
     }
 
-    public function dataLaporan()
+    public function destroy($id)
     {
-        return view('user.dataLaporan');
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return response()->json(['success' => true]);
     }
 
-    public function kontak()
-    {
-        return view('user.kontak');
-    }
+
 }
