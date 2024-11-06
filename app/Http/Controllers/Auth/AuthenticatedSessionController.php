@@ -44,8 +44,6 @@ class AuthenticatedSessionController extends Controller
     {
         if ($user->isRole('admin')) {
             return redirect()->route('admin.dashboard');
-        } elseif ($user->isRole('perusahaan')) {
-            return redirect()->route('perusahaan.dashboard');
         } else {
             return redirect()->route('user.index');
         }
@@ -64,6 +62,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 }

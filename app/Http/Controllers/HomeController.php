@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Report;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,7 +24,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('user.index');
+        $reportCount = Report::count();
+
+        return view('user.index', compact('reportCount'));
     }
     
     public function admin()

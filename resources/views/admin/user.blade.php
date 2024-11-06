@@ -1,13 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users Dashboard - Lapor Pak</title>
+    <title>List User - Admin</title>
     <link rel="stylesheet" href="{{ asset('assets/style.css') }}">
-</head>
+    <!-- Link to Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Tambahan CSS untuk mengatur penempatan tabel di sebelah kiri */
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-left: 20px; /* Tambahkan margin kiri agar tabel tidak terlalu dekat dengan tepi */
+            width: 70%; /* Tentukan lebar kontainer tabel */
+        }
 
+        /* Styling header tabel */
+        table.table-bordered th {
+            background-color: #1a3c87;
+            color: white;
+        }
+
+        /* Styling border tabel */
+        table.table-bordered td {
+            border-color: #dee2e6;
+        }
+
+        /* Styling Profile Section with Enhanced Look */
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .profile-section .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-section .dropdown-toggle {
+            position: relative;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid transparent;
+            background: linear-gradient(45deg, #0056b3, #00aaff);
+            padding: 2px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Adding Profile Image Styles */
+        .profile-section .dropdown-toggle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Hover Effect on Profile Picture */
+        .profile-section .dropdown-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .profile-section .dropdown-toggle img:hover {
+            opacity: 0.9;
+        }
+
+        /* Dropdown Styling */
+        .profile-section .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 70px;
+            right: 0;
+            background-color: #fff;
+            min-width: 180px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .profile-section .dropdown-item {
+            padding: 12px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .profile-section .dropdown-item:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Profile Info Display */
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            color: #fff;
+        }
+
+        .profile-info .name {
+            color: #003366;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .profile-info .role {
+            font-size: 0.9em;
+            color: #00aaff;
+        }
+
+        /* Enhanced Hover for Profile Dropdown */
+        .profile-section:hover .dropdown-menu {
+            display: block;
+        }
+    </style>
+</head>
 <body>
     <div class="dashboard">
         <!-- Sidebar -->
@@ -17,287 +130,186 @@
                 <a href="{{ route('admin') }}"><i class="icon">🏠</i> Dashboard</a>
                 <a href="laporan.html"><i class="icon">📄</i> Reports</a>
                 <a href="{{ route('admin.user') }}" class="active"><i class="icon">👤</i> Users</a>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf <!-- CSRF Token -->
-                    <button type="submit" class="btn logout-btn " style="text-align: left; margin-left: 0;"><i class="icon">&#128682;</i>Log Out</button>
-                </form>
             </nav>
         </aside>
 
         <!-- Main Content -->
         <div class="main-content">
-            <!-- Header -->
             <header>
                 <div class="header-left">
                     <h1>Users Dashboard</h1>
                     <p class="date">Wednesday, November 6, 2024</p>
                 </div>
                 <div class="profile-section">
-                    <i class="notifications">🔔</i>
-                    <div class="profile">
-                        <img src="profile.jpg" alt="Profile Picture">
+                    <!-- Profile Info -->
+                    <div class="profile-info">
+                        <span class="name">{{ Auth::user()->name }}</span>
+                        <span class="role">{{ Auth::user()->role ? 'Admin' : 'User' }}</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="dropdown-toggle" onclick="toggleDropdown()">
+                            <img src="{{ asset('images/image 113.png') }}" alt="Profile">
+                        </button>
+                        <ul class="dropdown-menu" id="profileDropdown">
+                            <li><a class="dropdown-item" href="{{ route('profile.show') }}">Edit Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </header>
 
-            <!-- Users Table -->
-            <section class="user-table">
-            <h2 style="text-align: left; margin-left: 0;">Registered Users</h2>
-                
-                <!-- Button to open Add User Modal -->
-                <button class="btn add-user-btn" onclick="openAddUserModal()">Add New User</button>
+            <!-- Content Wrapper untuk Penempatan Tabel di Sebelah Kiri -->
+            <main class="content-wrapper">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2>List User</h2>
+                </div>
 
-                <!-- Users Table -->
-                <table>
+                <!-- Tombol Create User -->
+                <button class="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#modalCreate">Create User</button>
+
+                <!-- Tabel User -->
+                <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>User ID</th>
+                            <th>No</th>
                             <th>Name</th>
-                            <th>Role</th>
-                            <th>Actions</th>
+                            <th>Email</th>
+                            <th>Created At</th>
+                            <th>Function</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($users as $user)
+                        @foreach ($users as $item)
                             <tr>
-                                <td>{{ $user->id }}</td>
-                                <td>{{ $user->name }}</td>
-                                <td>{{ $user->role }}</td>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $item->name }}</td>
+                                <td>{{ $item->email }}</td>
+                                <td>{{ $item->created_at }}</td>
                                 <td>
-                                    <button class="btn edit">Edit</button>
-                                    <button class="btn delete">Delete</button>
+                                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalUpdate{{ $item->id }}">Edit</button>
+                                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDelete{{ $item->id }}">Delete</button>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-            </section>
+
+                <!-- Modal Create User -->
+                <div class="modal fade" id="modalCreate" tabindex="-1" aria-labelledby="modalCreateLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title" id="modalCreateLabel">Create User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('users.store') }}" method="POST">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="name">Nama</label>
+                                        <input type="text" name="name" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email">Email</label>
+                                        <input type="email" name="email" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="password">Password</label>
+                                        <input type="password" name="password" class="form-control" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Update User -->
+                @foreach ($users as $item)
+                <div class="modal fade" id="modalUpdate{{ $item->id }}" tabindex="-1" aria-labelledby="modalUpdateLabel{{ $item->id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title" id="modalUpdateLabel{{ $item->id }}">Update User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('users.update', $item->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="mb-3">
+                                        <label for="name">Nama</label>
+                                        <input type="text" name="name" value="{{ $item->name }}" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email">Email</label>
+                                        <input type="email" name="email" value="{{ $item->email }}" class="form-control" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+
+                <!-- Modal Delete User -->
+                @foreach ($users as $item)
+                <div class="modal fade" id="modalDelete{{ $item->id }}" tabindex="-1" aria-labelledby="modalDeleteLabel{{ $item->id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="modalDeleteLabel{{ $item->id }}">Delete User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete <strong>{{ $item->name }}</strong>?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <form action="{{ route('users.destroy', $item->id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+
+            </main>
         </div>
     </div>
 
-    <!-- Modal for User Details -->
-    <div id="userModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeUserModal()">&times;</span>
-            <h2>User Details</h2>
-            <p><strong>User ID:</strong> <span id="userId"></span></p>
-            <p><strong>Name:</strong> <span id="userName"></span></p>
-            <p><strong>Role:</strong> <span id="userRole"></span></p>
-            <p><strong>Status:</strong> <span id="userStatus"></span></p>
-            <p><strong>Email:</strong> <span id="userEmail"></span></p>
-        </div>
-    </div>
-
-    <!-- Modal for Adding New User -->
-<div id="addUserModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeAddUserModal()">&times;</span>
-        <h2>Add New User</h2>
-        <form action="{{ route('users.store') }}" method="POST">
-            @csrf
-            <div class="form-group">
-                <label for="userName">Name:</label>
-                <input type="text" id="userName" name="name" required>
-            </div>
-            <div class="form-group">
-                <label for="userEmail">Email:</label>
-                <input type="email" id="userEmail" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="userPassword">Password:</label>
-                <input type="password" id="userPassword" name="password" required>
-            </div>
-            <div class="form-group">
-                <label for="userRole">Role:</label>
-                <label for="userRole">Role:</label>
-                <select id="userRole" name="role" required>
-                    <option value="0">User</option>
-                    <option value="1">Admin</option>
-                </select>
-            </div>
-            <button type="submit" class="btn add">Add User</button>
-        </form>
-    </div>
-</div>
-
-<style>
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Background overlay */
-}
-
-.modal-content {
-    background-color: #f9f9f9;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 400px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    animation: slideDown 0.4s ease; /* Add animation */
-}
-
-@keyframes slideDown {
-    from {transform: translateY(-50px); opacity: 0;}
-    to {transform: translateY(0); opacity: 1;}
-}
-
-.close {
-    color: #aaa;
-    font-size: 24px;
-    font-weight: bold;
-    float: right;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: #333;
-}
-
-h2 {
-    text-align: center;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 14px;
-    color: #333;
-}
-
-input[type="text"], input[type="email"], input[type="password"], select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-sizing: border-box;
-    font-size: 14px;
-    color: #333;
-}
-
-input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus {
-    border-color: #007bff;
-    outline: none;
-}
-
-.btn.add-user-btn {
-    color: #fff;
-    background-color: #007bff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-bottom: 15px; /* Jarak bawah */
-}
-
-.btn.add-user-btn:hover {
-    background-color: #0056b3;
-}
-
-/* Logout Button Styling */
-.btn.logout-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 20px;
-    background-color: #007bff; /* Warna tombol yang aktif */
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%; /* Memperlebar tombol hingga memenuhi lebar kontainer */
-}
-
-.btn.logout-btn:hover {
-    background-color: #0056b3; /* Warna hover untuk tombol aktif */
-    transform: scale(1.05);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-}
-
-.btn.logout-btn:active {
-    background-color: #003f7d; /* Warna saat tombol ditekan */
-    transform: scale(1);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-}
-
-/* Styling untuk tombol yang dinonaktifkan */
-.btn.logout-btn[disabled] {
-    background-color: #6c757d; /* Warna tombol saat dinonaktifkan (abu-abu) */
-    color: #adb5bd; /* Warna teks saat tombol dinonaktifkan */
-    cursor: not-allowed; /* Ubah kursor menjadi tanda larangan */
-    box-shadow: none; /* Hilangkan bayangan tombol */
-}
-
-.btn.logout-btn .icon {
-    margin-right: 8px;
-    font-size: 20px;
-}
-
-/* Tooltip Styling */
-.btn.logout-btn:hover::after {
-    content: 'Click to log out';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 14px;
-    white-space: nowrap;
-}
-
-
-
-</style>
-
+    <!-- Bootstrap JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Open the modal to add user
-        function openAddUserModal() {
-            document.getElementById('addUserModal').style.display = 'block';
+        function toggleDropdown() {
+            var dropdown = document.getElementById("profileDropdown");
+            dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
         }
 
-        // Close the add user modal
-        function closeAddUserModal() {
-            document.getElementById('addUserModal').style.display = 'none';
-        }
-
-        // Open the modal to view user details
-        function openUserModal(id, name, role, status, email) {
-            document.getElementById('userId').innerText = id;
-            document.getElementById('userName').innerText = name;
-            document.getElementById('userRole').innerText = role;
-            document.getElementById('userStatus').innerText = status;
-            document.getElementById('userEmail').innerText = email;
-            document.getElementById('userModal').style.display = 'block';
-        }
-
-        // Close the user details modal
-        function closeUserModal() {
-            document.getElementById('userModal').style.display = 'none';
+        // Hide dropdown if user clicks outside of it
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropdown-toggle img')) {
+                var dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.style.display === "block") {
+                        openDropdown.style.display = "none";
+                    }
+                }
+            }
         }
     </script>
-    
-</body>
 
+</body>
 </html>

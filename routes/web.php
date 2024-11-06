@@ -29,15 +29,17 @@ Auth::routes();
 
 //Normal Users Routes List
 Route::middleware(['auth', 'UserAccess:user'])->group(function () {
-   
     Route::get('/home', [HomeController::class, 'index'])->name('index');
 });
    
-//Admin Routes List
+
 Route::middleware(['auth', 'UserAccess:admin'])->group(function () {
-   
     Route::get('/admin/home', [HomeController::class, 'admin'])->name('admin');
+    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.user'); // Route untuk daftar user admin
 });
+
+Route::resource('users', UserController::class);
+
    
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
@@ -53,8 +55,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/kontak', [UserController::class, 'kontak'])->name('kontak');
 });
 
-    Route::get('/admin/user', [AdminController::class, 'index'])->name('admin.user');
-    Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
     

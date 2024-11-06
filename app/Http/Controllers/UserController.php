@@ -4,45 +4,56 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+// Pastikan Anda sudah menambahkan use Auth jika belum
+use Illuminate\Support\Facades\Auth;
+
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     public function dashboard()
     {
-        return view('user.index');
+        $user = Auth::user();
+        return view('user.index', compact('user'));
     }
 
-        public function store(Request $request)
-        {
-        $request->validate([
+    public function index()
+    {
+        $users = User::all();
+        return view('admin.user', compact('users'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-            'role' => 'required|string',
+            'password' => 'required|min:6',
         ]);
 
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'role' => $request->role,
-            'status' => $request->status ?? 'Active',
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('admin.user')->with('success', 'User berhasil ditambahkan');
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $user->name = $request->input('name');
-        $user->email = $request->input('email');
-        $user->role = $request->input('role');
-        $user->save();
 
-        return redirect()->route('admin.user')->with('success', 'User updated successfully');
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update($validated);
+
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
-
+    
     public function destroy($id)
     {
         $user = User::findOrFail($id);
@@ -50,6 +61,5 @@ class UserController extends Controller
 
         return response()->json(['success' => true]);
     }
-
 
 }
